@@ -58,6 +58,7 @@ $('body').append('<div id="current"></div>')
 
 // define filepath
 var filepath = 'hltv_playerStats-complete.csv';
+var worldMapData = 'world_country_and_usa_states_latitude_and_longitude_values.csv';
 
 
 
@@ -391,8 +392,8 @@ var question3=function(filePath){
 					.duration(100)
 					.style("opacity", 1)
 
-				if (this.classList.contains('killsRect')){tooltip.html("Kills: " + d.data.k)}
-				else{tooltip.html("Assists: " + d.data.a)}
+				if (this.classList.contains('killsRect')){tooltip.html("Kills per round: " + d.data.k)}
+				else{tooltip.html("Assists per round: " + d.data.a)}
 				
 				tooltip.style("left", (event.pageX)-170 + "px")
 					.style("top", (event.pageY)-170 + "px")	
@@ -428,9 +429,132 @@ var question3=function(filePath){
 	});
 }
 
+
 var question4=function(filePath){
 	d3.csv(filePath, rowConverter).then(function(data){
+		d3.csv(worldMapData).then(function(mapData){
 
+			countryIndexes = d3.map(mapData, d=> d.country);
+
+				// Setting up count data for each country
+			var rollup = Array.from(d3.rollup(data, d => d.length, d => d.country))
+			var final = []
+			var counts = []
+			for (let i=0; i < rollup.length; i+=1) {
+				// One country has to be missed due to it's lack of data
+				var country = mapData[countryIndexes.indexOf(rollup[i][0])]
+				if(typeof country !== 'undefined'){
+					final.push({'country':rollup[i][0], 'count':rollup[i][1], 'long': parseFloat(country['longitude']), 'lat': parseFloat(country['latitude'])})
+					counts.push(rollup[i][1])
+				}
+			}
+			
+
+
+			// Setting up SVG
+			const svgwidth=1000;
+			const svgheight=800;
+			const paddingTop = 100;
+			const paddingLeft = 100;
+
+			const rScale = d3.scaleLinear().domain([d3.min(counts), d3.max(counts)]).range([4,15])
+
+			var svg = d3.select("#current")
+				.append("svg").attr("width", svgwidth)
+				.attr("height", svgheight)
+				.append("g")
+					.attr("transform",
+						"translate(0," + paddingTop + ")");
+
+			// Tooltip setup
+			var tooltip = d3.select("#current")
+				.append("div")
+				.style("opacity", 0)
+				.attr("class", "tooltip")
+				.style("background-color", "black")
+				.style("color", "white")
+				.style("border-radius", "5px")
+				.style("padding", "10px")
+
+			const moveTooltip = function(event,d) {
+		
+				tooltip.style("left", (event.pageX)-200 + "px")
+					.style("top", (event.pageY) - 30 +"px")
+				}
+			
+			// World projection 
+			const projection  = d3.geoNaturalEarth1();
+			const pathgeo = d3.geoPath().projection(projection);
+			const world = d3.json('world.json')
+
+			world.then(function(map){
+				svg.selectAll('#path').data(map.features).enter().append('path')
+					.attr('d', pathgeo)
+					.style('fill', 'green')
+					.style('stroke', 'white')
+					.style('opacity', 0.7)
+					.attr('class', 'worldMap')
+			
+
+				svg.selectAll("#circle").data(final).enter().append("circle")
+					.attr("cx", d=>projection([d.long,d.lat])[0])
+					.attr("cy", d=>projection([d.long,d.lat])[1])
+					.attr("r", function(d){return rScale(d.count)})
+					.attr('id', function(d){return d.country})
+					.attr('class', 'circ')
+					.attr('fill', 'navy')
+					.style('stroke', 'maroon')
+					.style('opacity', 0.6) 
+					.on("mousemove", moveTooltip )
+
+		
+					.on("mouseover", function(event, d){ 
+						tooltip.transition()
+							.duration(100)
+							.style("opacity", 1)
+
+						tooltip.html("Country: " + this.getAttribute('id') + "<br>Pro players: " + String(d.count)) 
+						
+						tooltip.style("left", (event.pageX)-500 + "px")
+							.style("top", (event.pageY)-500 + "px")	
+							.style('color', 'lightgrey')	
+						
+						d3.select(this)
+							.transition()
+							.duration(20)
+							.attr("fill", "#0099ff")
+					})
+
+					.on('mouseout', function(event, d){
+						tooltip.transition()
+							.duration(100)
+							.style("opacity", 0)
+						d3.select(this)
+							.transition()
+							.attr('fill', 'navy')
+							.duration(200)
+					})
+					function zoomed({transform}) {
+						d3.selectAll('.worldMap').attr("transform", transform);
+						d3.selectAll('.circ').attr("transform", transform)
+					  }
+					svg.call(d3.zoom()
+						.extent([[0, 0], [svgwidth, svgheight]])
+						.scaleExtent([1, 8])
+						.on("zoom", zoomed));
+
+					// SVG title
+					svg.append('text')
+						.text("Players and where they're from")
+						.attr('text-anchor', 'center')
+						.style('position', 'absolute')
+						.attr("transform", "translate("+ ((svgwidth)/2-paddingLeft-paddingLeft/2+40) + ",-40)")
+						.style('fill', 'grey')
+						.style('font-family', 'Font Awesome 5 Free')
+						.style('font-size', 20);
+
+			});
+		});
 	});
 }
 
