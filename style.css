@@ -174,11 +174,13 @@ i {
 }
 
 #sort_button{
+	position: absolute;
 	background-color: #0099ffde;
 	color: rgba(255, 255, 255, 0.856);
 	border: 0px;
 	border-radius: 5px;
 	padding: 10px 10px;
+	transform: translate(670px, 40px)
 
 }
 

@@ -107,13 +107,15 @@ var question1=function(filePath){
 			.text('KD Ratio')
 			.attr('text-anchor', 'center')
 			.attr("transform", "translate("+ ((width)/2-margin.left/2) + "," + (height+  margin.bottom) + ")")
-			.style('font-family', 'Font Awesome 5 Free');
+			.style('font-family', 'Font Awesome 5 Free')
+			.style('fill', 'grey');
 
 		svg.append('text')
 			.text('Maps Played')
 			.attr('text-anchor', 'center')
 			.attr("transform", "translate("+ (-margin.left/2) + "," + (height/2 - margin.bottom/2) + ")" + ' rotate(-90)')
-			.style('font-family', 'Font Awesome 5 Free');
+			.style('font-family', 'Font Awesome 5 Free')
+			.style('fill', 'grey');
 
     });
 }
@@ -122,28 +124,30 @@ var question1=function(filePath){
 var question2=function(filePath){
 	d3.csv(filePath, rowConverter).then(function(data){
 		
-
-		data = Array.from(d3.map(data, function(d){return {'nick': d.nick, 'rating': d.rating}})).sort()
-		
-
-		// Constructing final data array
+		// Filter for top 50 ratings
 		players = []
 		final = []
+		data = Array.from(d3.map(data, function(d){return {'nick': d.nick, 'rating': d.rating}})).sort()
+		
 		for (n of Array(50).keys()){
 			final.push(data[n]);
 			players.push(data[n]['nick'])
 		}
 
 
-	
+		// SVG setup
 		var svgheight = 600;
 		var svgwidth = 1500;
 		var padding = 150;
 
+		var svg = d3.select("#current").append("svg")
+						.attr("width", svgwidth)
+						.attr("height", svgheight);
+
+		// X and Y scale setup
 		var xScale = d3.scaleBand()
 			.domain(players)
 			.range([padding, svgwidth-padding])
-
 
 		var yScale = d3.scaleLinear()
 			.domain([d3.min(final, function(d){return d.rating;}),
@@ -151,19 +155,17 @@ var question2=function(filePath){
 			])
 			.range([padding, svgheight-padding]);
 
-		var svg = d3.select("#current").append("svg")
-						.attr("width", svgwidth)
-						.attr("height", svgheight);
-
 		svg.append("g")
 			.attr("transform", "translate(0," + (svgheight-padding) + ")")
 			.call(d3.axisBottom(xScale))
 			.selectAll('text')
 				.attr('text-anchor', 'end')
-				.attr('transform', 'rotate(-90) translate(-10, '+ (-xScale.bandwidth()/2) + ')')
+				.attr('transform', 'translate(0,10) rotate(-45)')
 				.style('font-family', 'Font Awesome 5 Free')
 				.style('color', 'grey');
 
+					
+		// SVG Title			
 		svg.append('text')
 			.text('Top 50 Players and their ratings')
 			.attr('text-anchor', 'center')
@@ -173,7 +175,7 @@ var question2=function(filePath){
 			.style('font-size', 20);
 			
 							
-
+		// Tooltip setup
 		var tooltip = d3.select("#current")
 			.append("div")
 			.style("opacity", 0)
@@ -184,7 +186,7 @@ var question2=function(filePath){
 			.style("padding", "10px")
 			
 
-
+		// Setting up movetootip function	
 		const moveTooltip = function(event,d) {
 			
 			tooltip.style("left", (event.pageX)-170 + "px")
@@ -194,11 +196,10 @@ var question2=function(filePath){
 		var svg_bars = svg.selectAll(".bar")
 				.data(final).enter().append("rect")
 				.attr("class", "bar")
-				.attr('fill', '#5161ce')
+				.attr('fill', '#f5f37f')
 
 				.on("mousemove", moveTooltip )
 
-	
 				.on("mouseover", function(event, d){ 
 					tooltip.transition()
 						.duration(100)
@@ -214,7 +215,6 @@ var question2=function(filePath){
 						.attr("fill", "#0099ff")
 
 				})
-		// 		//TO DO : Add code for mouseout
 
 				.on('mouseout', function(event, d){
 					tooltip.transition()
@@ -223,7 +223,7 @@ var question2=function(filePath){
 					
 					d3.select(this)
 						.transition()
-						.attr('fill', '#5161ce')
+						.attr('fill', '#f5f37f')
 						.duration(200)
 				})
 			
@@ -240,9 +240,7 @@ var question2=function(filePath){
 					return yScale(d.rating);
 				})
 
-
-		// TO DO : add a click event to the button
-
+		// Flag for ascending/decending
 		var isDescending = false;
 		var sortBars = function(){
 			sorted = final.sort(function(a, b){
@@ -274,8 +272,11 @@ var question2=function(filePath){
 				isDescending = !isDescending;
 		}      
 
+		// Changing text on sort button
 		d3.select('#sort_button').on('click', function(){
 			sortBars()
+			if (isDescending == false){d3.select('#sort_button').html('Sort Ascendingly')}
+			else{d3.select('#sort_button').html('Sort Descendingly')}
 		})
 	});
 }
@@ -283,6 +284,147 @@ var question2=function(filePath){
 var question3=function(filePath){
 	d3.csv(filePath, rowConverter).then(function(data){
 
+		data = Array.from(d3.map(data, function(d){return {'nick': d.nick, 'k': d.kills_per_round, 'a': d.assists_per_round, 'rating': d.rating}})).sort(
+			function(a,b){
+				return b.rating - a.rating
+			}
+		)
+		
+		// Constructing final data array
+		const players = []
+		const final = []
+		const kills = []
+		const assists = []
+
+		for (n of Array(50).keys()){
+			final.push({'nick': data[n].nick, 'k': data[n].k, 'a': data[n].a});
+			players.push(data[n]['nick'])
+			kills.push(data[n].k)
+			assists.push(data[n].a)
+		}
+
+		// Setting up SVG
+		const width=1500;
+        const height=800;
+        const padding=100;
+        var colors = d3.scaleOrdinal().domain(['k', 'a']).range(['#e76359', 'lightgrey'])
+        var keys = ['k', 'a'];
+
+		var svg = d3.select('#current').append('svg')
+            .attr('width', width)
+            .attr('height', height);
+
+
+		// X and Y Scale
+		const xScale = d3.scaleBand()
+            .domain(d3.range(final.length)) 
+            .range([padding, width-padding])
+            .padding([0.1]);
+
+        const yScale = d3.scaleLinear().domain([0, d3.sum([d3.max(kills), d3.max(assists)])]).range([height-padding, padding]);
+
+		
+
+		const xAxis = d3.axisBottom(xScale).tickFormat(function(d) { return players[d]});
+		const yAxis = d3.axisLeft(yScale);
+
+
+		// Tooltip setup
+		var tooltip = d3.select("#current")
+			.append("div")
+			.style("opacity", 0)
+			.attr("class", "tooltip")
+			.style("background-color", "black")
+			.style("color", "white")
+			.style("border-radius", "5px")
+			.style("padding", "10px")
+
+		const moveTooltip = function(event,d) {
+			
+				tooltip.style("left", (event.pageX)-170 + "px")
+					.style("top", (event.pageY)-170 + "px")
+				}
+
+		svg.append('g').call(xAxis)
+            .attr('class', 'xAxis')
+            .attr('transform', "translate(0," + (height - padding) + ")")
+            .selectAll("text")
+            .style('text-anchor', 'end')
+            .attr('transform', 'translate(0,10) rotate(-45)');
+
+		svg.append('g').call(yAxis) 
+            .attr('class', 'yAxis')
+            .attr('transform', 'translate('+ padding + ',0)');
+
+		
+		// Group and stack setup for stacked bar chart
+		var series = d3.stack().keys(keys)
+		var stack = series(final);
+		var groups = svg.selectAll('.gbars')
+            .data(stack).enter().append('g')
+            .attr('class', 'gbars')
+            .attr('fill', function(d){return colors(d.index)})
+
+		// Bars for stacked bar chart
+		var rects = groups.selectAll('rect').data(function(d){return d}).enter().append('rect')
+			.attr('x', function(d,i){
+				return xScale(i);
+			})
+			.attr('y', function(d){
+				return yScale(d[1]);
+			})
+			.attr('width', function(d){
+				return xScale.bandwidth();
+			})
+			.attr('height', function(d){
+				return  yScale(d[0]) - yScale(d[1]);
+			})
+			.attr('class', function(d){
+				if (d[0] == 0){return 'killsRect'}
+				else{return 'assistRect'}
+			})
+			.on("mousemove", moveTooltip )
+
+	
+			.on("mouseover", function(event, d){ 
+				tooltip.transition()
+					.duration(100)
+					.style("opacity", 1)
+
+				if (this.classList.contains('killsRect')){tooltip.html("Kills: " + d.data.k)}
+				else{tooltip.html("Assists: " + d.data.a)}
+				
+				tooltip.style("left", (event.pageX)-170 + "px")
+					.style("top", (event.pageY)-170 + "px")	
+					.style('color', 'lightgrey')	
+				
+				d3.select(this)
+					.transition()
+					.duration(20)
+					.attr("fill", "#0099ff")
+			})
+
+			.on('mouseout', function(event, d){
+				tooltip.transition()
+					.duration(100)
+					.style("opacity", 0)
+				d3.select(this)
+					.transition()
+					.attr('fill', function(){
+						if (this.classList.contains('killsRect')){return '#e76359'}
+						else{return 'lightgrey'}
+					})
+					.duration(200)
+			})
+
+		// SVG title
+		svg.append('text')
+			.text('Kill/Death per round for top 50 players')
+			.attr('text-anchor', 'center')
+			.attr("transform", "translate("+ ((width)/2-padding-padding) + "," + (40) + ")")
+			.style('fill', 'grey')
+			.style('font-family', 'Font Awesome 5 Free')
+			.style('font-size', 20);
 	});
 }
 
@@ -304,8 +446,9 @@ var question5=function(filePath){
 
 // Default loading visualization
 if ($("#current").is(':empty')){
-	$('#current').append('<button type="button", id="sort_button">Sort Graph</button>')
 	question2(filepath)
+	// $('#current').append()
+	$('#current').append('<button type="button", id="sort_button">Sort Ascendingly</button>')
 }
 
 
@@ -317,8 +460,8 @@ $("#navbarSupportedContent").on("click","li .nav-link1",function(e){
 $("#navbarSupportedContent").on("click","li .nav-link2",function(e){
 	
 	$("#current").empty();
-	$('#current').append('<button type="button", id="sort_button">Sort Graph</button>')
 	question2(filepath)
+	$('#current').append('<button type="button", id="sort_button">Sort Ascendingly</button>')
 });
 
 $("#navbarSupportedContent").on("click","li .nav-link3",function(e){
