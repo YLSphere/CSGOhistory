@@ -79,6 +79,22 @@ var question1=function(filePath){
 			.attr("transform",
 				"translate(" + margin.left + "," + margin.top + ")");
 
+		// Tooltip setup
+		var tooltip = d3.select("#current")
+			.append("div")
+			.style("opacity", 0)
+			.attr("class", "tooltip")
+			.style("background-color", "black")
+			.style("color", "white")
+			.style("border-radius", "5px")
+			.style("padding", "10px")
+		// Setting up movetootip function	
+		const moveTooltip = function(event,d) {
+			
+			tooltip.style("left", (event.pageX)-550 + "px")
+				.style("top", (event.pageY)-100 + "px")
+			}
+
 
 		// Add X axis
 		var x = d3.scaleLinear()
@@ -103,6 +119,32 @@ var question1=function(filePath){
 			.attr('cx', function(d){return x(d.maps_played)})
 			.attr('cy', function(d){return y(d.kd_ratio)})
 			.attr('r', 3)
+			.on("mousemove", moveTooltip )
+
+				.on("mouseover", function(event, d){ 
+					tooltip.transition()
+						.duration(100)
+						.style("opacity", 1)
+					tooltip.html("Player: " + d.nick + "<br>Maps Played: " + d.maps_played + "<br> K/D Ratio: " + d.kd_ratio)
+						.style('color', 'lightgrey')	
+					
+					d3.select(this)
+						.transition()
+						.duration(20)
+						.attr("fill", "#f5f37f")
+
+				})
+
+				.on('mouseout', function(event, d){
+					tooltip.transition()
+						.duration(100)
+						.style("opacity", 0)
+					
+					d3.select(this)
+						.transition()
+						.attr('fill', '#0099ff')
+						.duration(200)
+				})
 
 		svg.append('text')
 			.text('KD Ratio')
@@ -342,8 +384,8 @@ var question3=function(filePath){
 
 		const moveTooltip = function(event,d) {
 			
-				tooltip.style("left", (event.pageX)-170 + "px")
-					.style("top", (event.pageY)-170 + "px")
+				tooltip.style("left", (event.pageX)-190 + "px")
+					.style("top", (event.pageY)-110 + "px")
 				}
 
 		svg.append('g').call(xAxis)
@@ -395,8 +437,8 @@ var question3=function(filePath){
 				if (this.classList.contains('killsRect')){tooltip.html("Kills per round: " + d.data.k)}
 				else{tooltip.html("Assists per round: " + d.data.a)}
 				
-				tooltip.style("left", (event.pageX)-170 + "px")
-					.style("top", (event.pageY)-170 + "px")	
+				tooltip.style("left", (event.pageX) + "px")
+					.style("top", (event.pageY) + "px")	
 					.style('color', 'lightgrey')	
 				
 				d3.select(this)
@@ -455,7 +497,7 @@ var question4=function(filePath){
 
 
 			// Setting up SVG
-			const svgwidth=1000;
+			const svgwidth=2000;
 			const svgheight=800;
 			const paddingTop = 100;
 			const paddingLeft = 100;
@@ -467,7 +509,7 @@ var question4=function(filePath){
 				.attr("height", svgheight)
 				.append("g")
 					.attr("transform",
-						"translate(0," + paddingTop + ")");
+						"translate(500," + paddingTop + ")");
 
 			// Tooltip setup
 			var tooltip = d3.select("#current")
@@ -481,8 +523,8 @@ var question4=function(filePath){
 
 			const moveTooltip = function(event,d) {
 		
-				tooltip.style("left", (event.pageX)-450 + "px")
-					.style("top", (event.pageY) - 30 +"px")
+				tooltip.style("left", (event.pageX)+60 + "px")
+					.style("top", (event.pageY)-120 +"px")
 				}
 			
 			// World projection 
@@ -518,8 +560,8 @@ var question4=function(filePath){
 
 						tooltip.html("Country: " + this.getAttribute('id') + "<br>Pro players: " + String(d.count)) 
 						
-						tooltip.style("left", (event.pageX)-500 + "px")
-							.style("top", (event.pageY)-500 + "px")	
+						tooltip.style("left", (event.pageX) + "px")
+							.style("top", (event.pageY) + "px")	
 							.style('color', 'lightgrey')	
 						
 						d3.select(this)
@@ -550,9 +592,9 @@ var question4=function(filePath){
 					svg.append('text')
 						.text("Players and where they're from")
 						.attr('text-anchor', 'center')
-						.style('position', 'absolute')
-						.attr("transform", "translate("+ ((svgwidth)/2-paddingLeft-paddingLeft/2+40) + ",-40)")
+						.attr("transform", "translate("+ 380 + ",-40)")
 						.style('fill', 'grey')
+						.attr('class', 'title')
 						.style('font-family', 'Font Awesome 5 Free')
 						.style('font-size', 20);
 
@@ -562,6 +604,8 @@ var question4=function(filePath){
 }
 
 var question5=function(filePath){
+
+
 	d3.csv(filePath, rowConverter).then(function(data){
 
 		data = data.sort(
@@ -620,7 +664,7 @@ var question5=function(filePath){
 
 		// Force initialization
 		var force = d3.forceSimulation(data)
-			.force("charge", d3.forceManyBody().strength(-10))
+			.force("charge", d3.forceManyBody().strength(-50))
 			.force("link", d3.forceLink(links))
 			.force('center', d3.forceCenter(100, 50))
 
@@ -629,7 +673,7 @@ var question5=function(filePath){
 			.data(links)
 			.enter()
 			.append("line")
-			.attr('class', function(d){return d.team})
+			.attr('class', function(d){return '_' + d.team.replace(/[^0-9a-z]/gi, '')})
 			.attr("stroke", "gray")
 			.style('stroke-width', 2);
 
@@ -651,8 +695,8 @@ var question5=function(filePath){
 			.style("padding", "10px")
 
 		const moveTooltip = function(event,d) {
-			tooltip.style("left", (event.pageX)-50 + "px")
-				.style("top", (event.pageY)-50 +"px")
+			tooltip.style("left", (event.pageX)-25 + "px")
+				.style("top", (event.pageY)-100+"px")
 			}
 
 		// force simulation
@@ -675,7 +719,7 @@ var question5=function(filePath){
 			}
 		svg.call(d3.zoom()
 			.extent([[0, 0], [width, height]])
-			.scaleExtent([1, 8])
+			.scaleExtent([-5, 8])
 			.on("zoom", zoomed))
 
 		// Tooltip highlighting and HTML text for edges
@@ -685,8 +729,8 @@ var question5=function(filePath){
 				tooltip.transition()
 					.duration(100)
 					.style("opacity", 1)
-				tooltip.html("Team: " + this.classList[0])
-					
+				tooltip.html("Team: " + d.team)
+				console.log(d)
 				
 				d3.select(this)
 					.transition()
@@ -714,8 +758,9 @@ var question5=function(filePath){
 
 				tooltip.html("Player: " + d.nick)
 					for (n of d.teams){
-						if (!linkedTeams.includes(n)){break;}
-						var classSearch = '.' + n
+						if (!linkedTeams.includes(n)){continue;}
+						var classSearch = '._' + n.replace(/[^0-9a-z]/gi, '')
+						console.log(classSearch)
 						svg.selectAll(classSearch)
 							.attr('stroke', '#0099ff')
 					}
@@ -737,8 +782,8 @@ var question5=function(filePath){
 					.duration(200)
 				
 				for (n of d.teams){
-					if (!linkedTeams.includes(n)){break;}
-					var classSearch = '.' + n
+					if (!linkedTeams.includes(n)){continue;}
+					var classSearch = '._' + n.replace(/[^0-9a-z]/gi, '')
 					svg.selectAll(classSearch)
 						.attr('stroke', 'gray')
 
@@ -788,6 +833,7 @@ $("#navbarSupportedContent").on("click","li .nav-link3",function(e){
 });
 
 $("#navbarSupportedContent").on("click","li .nav-link4",function(e){
+	
 	$("#current").empty();
 	question4(filepath)
 });
@@ -795,4 +841,7 @@ $("#navbarSupportedContent").on("click","li .nav-link4",function(e){
 $("#navbarSupportedContent").on("click","li .nav-link5",function(e){
 	$("#current").empty();
 	question5(filepath)
+	
+    
+	
 });
