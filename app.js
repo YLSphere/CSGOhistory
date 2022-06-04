@@ -276,8 +276,8 @@ var question2=function(filePath){
 		// Changing text on sort button
 		d3.select('#sort_button').on('click', function(){
 			sortBars()
-			if (isDescending == false){d3.select('#sort_button').html('Sort Ascendingly')}
-			else{d3.select('#sort_button').html('Sort Descendingly')}
+			if (isDescending == false){d3.select('#sort_button').html('Sort In Ascending Order')}
+			else{d3.select('#sort_button').html('Sort In Descending Order')}
 		})
 	});
 }
@@ -402,7 +402,10 @@ var question3=function(filePath){
 				d3.select(this)
 					.transition()
 					.duration(20)
-					.attr("fill", "#0099ff")
+					.attr("fill", function(){
+						if (this.classList.contains('killsRect')){return '#0099ffde'}
+						else{return '#f5f37f'}
+					})
 			})
 
 			.on('mouseout', function(event, d){
@@ -478,7 +481,7 @@ var question4=function(filePath){
 
 			const moveTooltip = function(event,d) {
 		
-				tooltip.style("left", (event.pageX)-200 + "px")
+				tooltip.style("left", (event.pageX)-450 + "px")
 					.style("top", (event.pageY) - 30 +"px")
 				}
 			
@@ -490,7 +493,7 @@ var question4=function(filePath){
 			world.then(function(map){
 				svg.selectAll('#path').data(map.features).enter().append('path')
 					.attr('d', pathgeo)
-					.style('fill', 'green')
+					.style('fill', 'grey')
 					.style('stroke', 'white')
 					.style('opacity', 0.7)
 					.attr('class', 'worldMap')
@@ -502,7 +505,7 @@ var question4=function(filePath){
 					.attr("r", function(d){return rScale(d.count)})
 					.attr('id', function(d){return d.country})
 					.attr('class', 'circ')
-					.attr('fill', 'navy')
+					.attr('fill', 'rgb(231, 99, 89)')
 					.style('stroke', 'maroon')
 					.style('opacity', 0.6) 
 					.on("mousemove", moveTooltip )
@@ -522,7 +525,7 @@ var question4=function(filePath){
 						d3.select(this)
 							.transition()
 							.duration(20)
-							.attr("fill", "#0099ff")
+							.attr("fill", "rgb(245, 243, 127)")
 					})
 
 					.on('mouseout', function(event, d){
@@ -531,7 +534,7 @@ var question4=function(filePath){
 							.style("opacity", 0)
 						d3.select(this)
 							.transition()
-							.attr('fill', 'navy')
+							.attr('fill', 'rgb(231, 99, 89)')
 							.duration(200)
 					})
 					function zoomed({transform}) {
@@ -561,6 +564,197 @@ var question4=function(filePath){
 var question5=function(filePath){
 	d3.csv(filePath, rowConverter).then(function(data){
 
+		data = data.sort(
+			function(a,b){
+				return b.rating - a.rating
+			}
+		)
+		
+		// Constructing final data array
+		const final = []
+
+
+		for (n of Array(200).keys()){
+			final.push(data[n]);
+		}
+		
+		var teams = []
+		for(n in final){
+			final[n]['id'] = parseInt(n)
+			final[n].teams = eval(final[n]['teams']) 
+			teams.push(final[n].teams )
+		}
+		teams = teams.flat(Infinity); 
+		var teams = [...new Set(teams)]
+		
+		var links =[]
+
+		// Matching all players with teams
+		for(var i=0;i<final.length;i++){
+			for (team of final[i]['teams']){
+				for (n of final){
+					if (n == final[i]){continue;}
+					if (n['teams'].includes(team)){
+						var obj={}
+						obj["source"]=final[i].id;
+						obj["target"]=n.id;
+						obj["team"]= team
+						links.push(obj);
+					}
+				}
+			}
+		}
+
+		// Finding all linked teams, used for node link identification during tooltip setup
+		var linkedTeams = d3.map(links, d => d.team)
+		var linkedTeams = [...new Set(linkedTeams)]
+		
+		// SVG Setup
+		var width = 1800;
+		var height = 800;
+
+		var svg = d3.select("#current")
+			.append("svg")
+			.attr("width", width)
+			.attr("height", height);
+
+		// Force initialization
+		var force = d3.forceSimulation(data)
+			.force("charge", d3.forceManyBody().strength(-10))
+			.force("link", d3.forceLink(links))
+			.force('center', d3.forceCenter(100, 50))
+
+		// Edge setup
+		var edges = svg.selectAll("line")
+			.data(links)
+			.enter()
+			.append("line")
+			.attr('class', function(d){return d.team})
+			.attr("stroke", "gray")
+			.style('stroke-width', 2);
+
+		//Node setup
+		var nodes = svg.selectAll("circle")
+			.data(final)
+			.enter()
+			.append("circle")
+			.attr('fill', '#5161ce');
+
+		// Tooltip setup
+		var tooltip = d3.select("#current")
+			.append("div")
+			.style("opacity", 0)
+			.attr("class", "tooltip")
+			.style("background-color", "black")
+			.style("color", "white")
+			.style("border-radius", "5px")
+			.style("padding", "10px")
+
+		const moveTooltip = function(event,d) {
+			tooltip.style("left", (event.pageX)-50 + "px")
+				.style("top", (event.pageY)-50 +"px")
+			}
+
+		// force simulation
+		force.on("tick", function() {
+
+			edges.attr("x1", function(d) { return d.source.x*3; })
+					.attr("y1", function(d) { return d.source.y*3; })
+					.attr("x2", function(d) { return d.target.x*3; })
+					.attr("y2", function(d) { return d.target.y*3; });
+					
+		
+			nodes.attr("cx", function(d) { return d.x*3; })
+					.attr("cy", function(d) { return d.y*3; })
+					.attr("r", 10);
+		});
+		// Zoom setup
+		function zoomed({transform}) {
+			d3.selectAll('circle').attr("transform", transform);
+			d3.selectAll('line').attr("transform", transform)
+			}
+		svg.call(d3.zoom()
+			.extent([[0, 0], [width, height]])
+			.scaleExtent([1, 8])
+			.on("zoom", zoomed))
+
+		// Tooltip highlighting and HTML text for edges
+		svg.selectAll('line')
+			.on("mousemove", moveTooltip )
+			.on("mouseover", function(event, d){ 
+				tooltip.transition()
+					.duration(100)
+					.style("opacity", 1)
+				tooltip.html("Team: " + this.classList[0])
+					
+				
+				d3.select(this)
+					.transition()
+					.duration(20)
+					.attr("stroke", "#0099ff")
+			})
+
+			.on('mouseout', function(event, d){
+				tooltip.transition()
+					.duration(100)
+					.style("opacity", 0)
+				d3.select(this)
+					.transition()
+					.attr('stroke', 'grey')
+					.duration(200)
+			});
+
+		// Tooltip highlighting and HTML text for circles
+		svg.selectAll('circle')
+			.on("mousemove", moveTooltip )
+			.on("mouseover", function(event, d){ 
+				tooltip.transition()
+					.duration(100)
+					.style("opacity", 1)
+
+				tooltip.html("Player: " + d.nick)
+					for (n of d.teams){
+						if (!linkedTeams.includes(n)){break;}
+						var classSearch = '.' + n
+						svg.selectAll(classSearch)
+							.attr('stroke', '#0099ff')
+					}
+					
+				
+				d3.select(this)
+					.transition()
+					.duration(20)
+					.attr("fill", "rgb(245, 243, 127)")
+			})
+
+			.on('mouseout', function(event, d){
+				tooltip.transition()
+					.duration(100)
+					.style("opacity", 0)
+				d3.select(this)
+					.transition()
+					.attr('fill', '#5161ce')
+					.duration(200)
+				
+				for (n of d.teams){
+					if (!linkedTeams.includes(n)){break;}
+					var classSearch = '.' + n
+					svg.selectAll(classSearch)
+						.attr('stroke', 'gray')
+
+				}
+			
+			});
+
+
+
+
+
+
+
+
+
+
 	});
 }
 
@@ -572,7 +766,7 @@ var question5=function(filePath){
 if ($("#current").is(':empty')){
 	question2(filepath)
 	// $('#current').append()
-	$('#current').append('<button type="button", id="sort_button">Sort Ascendingly</button>')
+	$('#current').append('<button type="button", id="sort_button">Sort In Ascending Order</button>')
 }
 
 
@@ -585,7 +779,7 @@ $("#navbarSupportedContent").on("click","li .nav-link2",function(e){
 	
 	$("#current").empty();
 	question2(filepath)
-	$('#current').append('<button type="button", id="sort_button">Sort Ascendingly</button>')
+	$('#current').append('<button type="button", id="sort_button">Sort In Ascending Order</button>')
 });
 
 $("#navbarSupportedContent").on("click","li .nav-link3",function(e){
