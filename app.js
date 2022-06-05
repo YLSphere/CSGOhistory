@@ -66,7 +66,7 @@ var worldMapData = 'world_country_and_usa_states_latitude_and_longitude_values.c
 var question1=function(filePath){
     d3.csv(filePath, rowConverter).then(function(data){
 
-		var margin = {top: 50, right: 30, bottom: 50, left: 60},
+		var margin = {top: 50, right: 30, bottom: 60, left: 60},
 			width = 800 - margin.left - margin.right,
 			height = 800 - margin.top - margin.bottom;
 
@@ -75,6 +75,7 @@ var question1=function(filePath){
 		.append("svg")
 			.attr("width", width + margin.left + margin.right)
 			.attr("height", height + margin.top + margin.bottom)
+			.attr('transform', 'translate(550,00)')
 		.append("g")
 			.attr("transform",
 				"translate(" + margin.left + "," + margin.top + ")");
@@ -91,8 +92,8 @@ var question1=function(filePath){
 		// Setting up movetootip function	
 		const moveTooltip = function(event,d) {
 			
-			tooltip.style("left", (event.pageX)-550 + "px")
-				.style("top", (event.pageY)-100 + "px")
+			tooltip.style("left", (event.pageX)+20 + "px")
+				.style("top", (event.pageY)-150 + "px")
 			}
 
 
@@ -147,18 +148,27 @@ var question1=function(filePath){
 				})
 
 		svg.append('text')
-			.text('KD Ratio')
+			.text('Maps Played')
 			.attr('text-anchor', 'center')
-			.attr("transform", "translate("+ ((width)/2-margin.left/2) + "," + (height+  margin.bottom) + ")")
+			.attr("transform", "translate("+ ((width)/2-margin.left/2) + "," + (height+  margin.bottom/2+10) + ")")
 			.style('font-family', 'Font Awesome 5 Free')
 			.style('fill', 'grey');
 
 		svg.append('text')
-			.text('Maps Played')
+			.text('KD Ratio')
 			.attr('text-anchor', 'center')
-			.attr("transform", "translate("+ (-margin.left/2) + "," + (height/2 - margin.bottom/2) + ")" + ' rotate(-90)')
+			.attr("transform", "translate("+ (-margin.left/2) + "," + (height/2) + ")" + ' rotate(-90)')
 			.style('font-family', 'Font Awesome 5 Free')
 			.style('fill', 'grey');
+
+		// SVG Title			
+		svg.append('text')
+			.text('Maps played against KD Ratio')
+			.attr('text-anchor', 'center')
+			.attr("transform", "translate("+ ((width)/2-margin.left-margin.left) + "," + (-20) + ")")
+			.style('fill', 'grey')
+			.style('font-family', 'Font Awesome 5 Free')
+			.style('font-size', 20);
 
     });
 }
@@ -179,13 +189,14 @@ var question2=function(filePath){
 
 
 		// SVG setup
-		var svgheight = 600;
+		var svgheight = 700;
 		var svgwidth = 1500;
 		var padding = 150;
 
 		var svg = d3.select("#current").append("svg")
-						.attr("width", svgwidth)
-						.attr("height", svgheight);
+				.attr("width", svgwidth)
+				.attr("height", svgheight)
+				.attr('transform', 'translate(250,100)');
 
 		// X and Y scale setup
 		var xScale = d3.scaleBand()
@@ -355,7 +366,8 @@ var question3=function(filePath){
 
 		var svg = d3.select('#current').append('svg')
             .attr('width', width)
-            .attr('height', height);
+            .attr('height', height)
+			.attr('transform', 'translate(250,0)');
 
 
 		// X and Y Scale
@@ -465,7 +477,7 @@ var question3=function(filePath){
 
 		// SVG title
 		svg.append('text')
-			.text('Kill/Death per round for top 50 players')
+			.text('Kill/Assists per round for top 50 players')
 			.attr('text-anchor', 'center')
 			.attr("transform", "translate("+ ((width)/2-padding-padding) + "," + (40) + ")")
 			.style('fill', 'grey')
@@ -509,7 +521,7 @@ var question4=function(filePath){
 				.attr("height", svgheight)
 				.append("g")
 					.attr("transform",
-						"translate(500," + paddingTop + ")");
+						"translate(450," + paddingTop + ")");
 
 			// Tooltip setup
 			var tooltip = d3.select("#current")
@@ -567,7 +579,9 @@ var question4=function(filePath){
 						d3.select(this)
 							.transition()
 							.duration(20)
-							.attr("fill", "rgb(245, 243, 127)")
+							.attr("fill", "#0099FF")
+							.style('stroke', 'blue')
+
 					})
 
 					.on('mouseout', function(event, d){
@@ -577,6 +591,7 @@ var question4=function(filePath){
 						d3.select(this)
 							.transition()
 							.attr('fill', 'rgb(231, 99, 89)')
+							.style('stroke', 'maroon')
 							.duration(200)
 					})
 					function zoomed({transform}) {
@@ -654,8 +669,8 @@ var question5=function(filePath){
 		var linkedTeams = [...new Set(linkedTeams)]
 		
 		// SVG Setup
-		var width = 1800;
-		var height = 800;
+		var width = 2000;
+		var height = 1000;
 
 		var svg = d3.select("#current")
 			.append("svg")
@@ -664,7 +679,7 @@ var question5=function(filePath){
 
 		// Force initialization
 		var force = d3.forceSimulation(data)
-			.force("charge", d3.forceManyBody().strength(-50))
+			.force("charge", d3.forceManyBody().strength(-30))
 			.force("link", d3.forceLink(links))
 			.force('center', d3.forceCenter(100, 50))
 
@@ -682,7 +697,7 @@ var question5=function(filePath){
 			.data(final)
 			.enter()
 			.append("circle")
-			.attr('fill', '#5161ce');
+			.attr('fill', 'rgb(231, 99, 89)');
 
 		// Tooltip setup
 		var tooltip = d3.select("#current")
@@ -695,8 +710,8 @@ var question5=function(filePath){
 			.style("padding", "10px")
 
 		const moveTooltip = function(event,d) {
-			tooltip.style("left", (event.pageX)-25 + "px")
-				.style("top", (event.pageY)-100+"px")
+			tooltip.style("left", (event.pageX)+10 + "px")
+				.style("top", (event.pageY)-50+"px")
 			}
 
 		// force simulation
@@ -730,7 +745,6 @@ var question5=function(filePath){
 					.duration(100)
 					.style("opacity", 1)
 				tooltip.html("Team: " + d.team)
-				console.log(d)
 				
 				d3.select(this)
 					.transition()
@@ -778,7 +792,7 @@ var question5=function(filePath){
 					.style("opacity", 0)
 				d3.select(this)
 					.transition()
-					.attr('fill', '#5161ce')
+					.attr('fill', 'rgb(231, 99, 89)')
 					.duration(200)
 				
 				for (n of d.teams){
@@ -803,15 +817,240 @@ var question5=function(filePath){
 	});
 }
 
+var introduction=function(){
+	
+
+
+	d3.select('#current')
+		.style("overflow-y", "scroll")
+		.append('h1')
+		.attr('class', 'introTitle')
+		.html("A deep look at the statistics behind CS:GO's best players")
+
+	d3.select('#current')
+		.append('h3')
+		.attr('class', 'pallete')
+		.html('Color Pallete')
+
+	d3.select('#current')
+		.append("img")
+		.attr("src", "color_pallete.png")
+		.style("left", '37%')
+		.style("top", '60px')
+		.style('position', 'relative')
+		.attr("width", "500")
+		.attr("height", "500");
+
+	d3.select('#current')
+		.append('p')
+		.html('<br><br><br>')
+
+	d3.select('#current')
+		.append('h3')
+		.attr('class', 'vizTitle')
+		.html('Experience & Performance')
+	d3.select('#current')
+		.append('h5')
+		.attr('class', 'subTitle')
+		.html('What this graph represents')
+	d3.select('#current')
+		.append('p')
+		.attr('class', 'explaination')
+		.html('This scatter plot shows the possible correlation between professional experience against performance. The motivation behind this was to try and decipher if' + 
+		' a player with higher experience performed better (has a higher kill to death ratio). In a sense, this visualization monitors the effectiveness of a player in ' + 
+		'correspondance ot their personal experience. As a result of the data seenthrought he visualization, experience seems to have little to no correlation with a ' + 
+		"player's K/D ratio, and this visualization can help team managers or player scouts identify individual talent, or most effective players. The provided tooltip allows " + 
+		"users to look at the statistics of individual players, good for identifying outstanding players and acquiring their alias names")
+	d3.select('#current')
+		.append('h5')
+		.attr('class', 'subTitle')
+		.html('Color Scheme')
+	d3.select('#current')
+		.append('p')
+		.attr('class', 'explaination')
+		.html("The colors chosen in this graph were blue and yellow with grey axes to fit my 5 color color scheme. In addition, these colors were chosen so that they have minimal overlapping" + 
+		" when it comes to users with color blindness. Refering to the chart above, these two colors can be seen as easily distinguishable for al types of color blindness. " + 
+		"Combined with the small circular points and overlapping of circles, yellow as a default color would be hard to see in general, which is why I choose to only use yellow "+
+		"in this visualization as highlighting for my tooltip.")
+	d3.select('#current')
+		.append('h5')
+		.attr('class', 'subTitle')
+		.html('Marks & Channels')
+	d3.select('#current')
+		.append('p')
+		.attr('class', 'explaination')
+		.html("__TO BE FILLED__")
+
+
+
+	d3.select('#current')
+		.append('h3')
+		.attr('class', 'vizTitle')
+		.html('Top Ratings')
+	d3.select('#current')
+		.append('h5')
+		.attr('class', 'subTitle')
+		.html('What this graph represents')
+	d3.select('#current')
+		.append('p')
+		.attr('class', 'explaination')
+		.html('This visualization finds the top 50 players according to their rating, provided by HLTV, which denotes their performance with respect to the average, 1 being average.' + 
+		' The two sorting options allow the user to easily look at the best performing players and worst performing players out fo the top 50 best players in the world.' + 
+		' In addition, the tooltip allows users to look at individual statistics down to the fine grain without guessing based on an axis. Finally, the bottom axis also denotes ' + 
+		"player's alias names for ease of searching or access for users.")
+	d3.select('#current')
+		.append('h5')
+		.attr('class', 'subTitle')
+		.html('Color Scheme')
+	d3.select('#current')
+		.append('p')
+		.attr('class', 'explaination')
+		.html("Similar to the previous visualization, the colors were chosen tomatch the color scheme for my website. As the colors are the same as the last visualization" + 
+		"it should be provided that any user with color blindness will have no trouble viewing the visualization. The only difference I made was switching the highlight color" + 
+		" with the default color of the bars. (Default: Blue, Highlight: Yellow to Default: Yellow, Highlight: Blue) I made this decision not only to give some variance in styling " + 
+		"but only because the bars were easily distinguishable from each other due to the white gaps in between. When hovering the mouse over a bar, the individual bars also light" + 
+		" up pretty prominently, which made searching through individual players easier")
+	d3.select('#current')
+		.append('h5')
+		.attr('class', 'subTitle')
+		.html('Marks & Channels')
+	d3.select('#current')
+		.append('p')
+		.attr('class', 'explaination')
+		.html("__TO BE FILLED__")
+
+
+
+	d3.select('#current')
+		.append('h3')
+		.attr('class', 'vizTitle')
+		.html('Stats per round')
+	d3.select('#current')
+		.append('h5')
+		.attr('class', 'subTitle')
+		.html('What this graph represents')
+	d3.select('#current')
+		.append('p')
+		.attr('class', 'explaination')
+		.html('This visualization shows the kills and assists each top player (top 50 players) gets on average per round, The higher the more impactful and better. Because each team consisted of five players, ' + 
+		'the maximum amount a player could possibly achieve in terms of participation either in kills or assists would be five per round, being the most effective and impactful player. ' + 
+		'In hindsight, this is very unlikely, and a player with an average of one or more kills per round would already be considered effective, carrying their own weight and perhaps more.' + 
+		" However, because many in-game mechanics and play styles prevent that, we can see that even the best performing players average less than one kill per round." + 
+		" This visualization can again help player scouts and managers identify the effectiveness and impact of each player on average.")
+	d3.select('#current')
+		.append('h5')
+		.attr('class', 'subTitle')
+		.html('Color Scheme')
+	d3.select('#current')
+		.append('p')
+		.attr('class', 'explaination')
+		.html("This visualization involves the use of 4 colors which all fit into the five color scheme shown above. Because of the increased number of colors seen, compensating " + 
+		"for all types of color blindnes is a bit more difficult. However, I made sure to refer back to my color pallete and pick colors that would not overlap in terms of both hue and " +
+		"shade. In addition, I made sure that the hover color of both assists and kills were different to make it easier for users to denote between the highlighting of each category. "+ 
+		"Finally, when deciding on the default color encoding of my stacked bar chart, I chose to go with both grey and red, as they are both easily distinguishable to any user regardless of color blindness.")
+	d3.select('#current')
+		.append('h5')
+		.attr('class', 'subTitle')
+		.html('Marks & Channels')
+	d3.select('#current')
+		.append('p')
+		.attr('class', 'explaination')
+		.html("__TO BE FILLED__")
+
+
+
+	d3.select('#current')
+		.append('h3')
+		.attr('class', 'vizTitle')
+		.html("Where they're from")
+	d3.select('#current')
+		.append('h5')
+		.attr('class', 'subTitle')
+		.html('What this graph represents')
+	d3.select('#current')
+		.append('p')
+		.attr('class', 'explaination')
+		.html("This geo visualization shows the count of all professional players with respect to their country of origin. This visualization is meant to put into perspective " + 
+		"of where all the top players are originating from. The larger the circles are, the higher amount of players originate from that country. Hovering over the dots allows the user " +
+		"to look into the specific number of players from that country. In addition, because many countries overlap each other, especially in the European region, the user can " + 
+		"drag and zoom into the visualization to get a clear understanding of the distribution of players from a specific group of countries and better highlight them.")
+	d3.select('#current')
+		.append('h5')
+		.attr('class', 'subTitle')
+		.html('Color Scheme')
+	d3.select('#current')
+		.append('p')
+		.attr('class', 'explaination')
+		.html("Similar to the previous visualization, these colors were chosen to fit the color scheme. In this visualization, I choose to go with a grey map and red circles instead of "+ 
+		"a more stereotypical green map with red circles to allow ease of use for users with red-green colorblindness. When hovering, the highlight color was chosen so that they don't seem "+
+		"too similar to the default red color for all users and so that it would'nt blend into the map itself.")
+	d3.select('#current')
+		.append('h5')
+		.attr('class', 'subTitle')
+		.html('Marks & Channels')
+	d3.select('#current')
+		.append('p')
+		.attr('class', 'explaination')
+		.html("__TO BE FILLED__")
+
+
+
+	d3.select('#current')
+		.append('h3')
+		.attr('class', 'vizTitle')
+		.html("Player Compatability")
+	d3.select('#current')
+		.append('h5')
+		.attr('class', 'subTitle')
+		.html('What this graph represents')
+	d3.select('#current')
+		.append('p')
+		.attr('class', 'explaination')
+		.html("This force directed graph shows the compatability of each of the top 200 players in the professional CS:GO esports scene. (More would cause the website to lag alot) " +
+		"Each node represents a player and each link represents the teams they have played on. Two players connected means that they have been on the same team, whether currently or previously. " +
+		"When highlighting a link, the team name can be seen, and when highlighting a player, their name can be seen. In addition, when highlighting a player, their team links are also highlighted, " + 
+		"helping the user visualize different players that this player might be compatable with or have played together before. Nodes without links denote players that made it into the "+
+		"top 200 player list, however their teamates haven't. This information can be useful for player scouts to identify new talent that might suit well in an already well established team, " + 
+		"helping those players make full use of their talent. Moreover, this visualization represents the overall influence a player has had on the CS:GO eSports scene, as a long member of the scene" + 
+		"may have played on many more teams when compared to a brand new player. In order to take a more closer look, the user is allowed the option to drag and zoom around the graph to look at specific connections.")
+	d3.select('#current')
+		.append('h5')
+		.attr('class', 'subTitle')
+		.html('Color Scheme')
+	d3.select('#current')
+		.append('p')
+		.attr('class', 'explaination')
+		.html("Similar to the stacked bar chart, this visualization involves four different colors. However, the most important color choice might be the highlight of the links when a player is selected. "+ 
+		"Because many links may be highlighted at the same time when a player is hovered over, these links have to stand out from any other element in the visualization to be deciphered clearly. "+ 
+		"By choosing to go with light blue, any user will have no problem distinguishing between highlighted links with unhilighted nodes and links, making them stand out even more.")
+	d3.select('#current')
+		.append('h5')
+		.attr('class', 'subTitle')
+		.html('Marks & Channels')
+	d3.select('#current')
+		.append('p')
+		
+		.attr('class', 'explaination')
+		.html("__TO BE FILLED__")
+	
+	d3.select('#current')
+		.append('p')
+		.html('<br><br><br><br><br>')
+
+
+
+
+
+}
+
 
 
 
 
 // Default loading visualization
 if ($("#current").is(':empty')){
-	question2(filepath)
-	// $('#current').append()
-	$('#current').append('<button type="button", id="sort_button">Sort In Ascending Order</button>')
+	// $('#current').append('<button type="button", id="sort_button">Sort In Ascending Order</button>')
+	introduction()	
 }
 
 
@@ -823,8 +1062,9 @@ $("#navbarSupportedContent").on("click","li .nav-link1",function(e){
 $("#navbarSupportedContent").on("click","li .nav-link2",function(e){
 	
 	$("#current").empty();
-	question2(filepath)
 	$('#current').append('<button type="button", id="sort_button">Sort In Ascending Order</button>')
+	question2(filepath)
+	
 });
 
 $("#navbarSupportedContent").on("click","li .nav-link3",function(e){
@@ -841,7 +1081,8 @@ $("#navbarSupportedContent").on("click","li .nav-link4",function(e){
 $("#navbarSupportedContent").on("click","li .nav-link5",function(e){
 	$("#current").empty();
 	question5(filepath)
-	
-    
-	
+});
+$("#navbarSupportedContent").on("click","li .introduction",function(e){
+	$("#current").empty();
+	introduction()
 });

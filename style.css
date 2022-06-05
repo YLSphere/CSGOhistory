@@ -173,7 +173,11 @@ i {
     top: 50%;
     transform: translate(-50%, -50%);
 }
-
+#current{
+	height: 100%;
+	width: 100%;
+	margin-top: 62px;
+}
 #sort_button{
 	position: absolute;
 	background-color: #0099ffde;
@@ -181,7 +185,7 @@ i {
 	border: 0px;
 	border-radius: 5px;
 	padding: 10px 10px;
-	transform: translate(650px, 40px)
+	transform: translate(900px, 50px)
 
 }
 
@@ -190,4 +194,35 @@ i {
 	height: 100%;
 	margin: 0;
 }
+
+.introTitle{
+	transform: translate(25%, 20px);
+	color: #5161ce;
+}
+
+.vizTitle{
+	transform: translate(5%, 20px);
+	color: rgb(61, 61, 61);
+}
+
+.subTitle{
+	transform: translate(7.5%, 10px);
+	color: rgb(78, 78, 78);
+}
+
+.explaination{
+	transform: translate(10%, 10px);
+	color: gray;
+	width: 85%;
+	word-wrap: break-word;
+}
+
+.pallete{
+	transform: translate(46%, 50px);
+	color: rgb(61, 61, 61);
+}
+
+.navbar-brand:hover {
+	color: rgba(255,255,255,0.5);
+  }
 
