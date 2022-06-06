@@ -150,14 +150,14 @@ var question1=function(filePath){
 		svg.append('text')
 			.text('Maps Played')
 			.attr('text-anchor', 'center')
-			.attr("transform", "translate("+ ((width)/2-margin.left/2) + "," + (height+  margin.bottom/2+10) + ")")
+			.attr("transform", "translate("+ ((width)/2-margin.left/2-10) + "," + (height+  margin.bottom/2+20) + ")")
 			.style('font-family', 'Font Awesome 5 Free')
 			.style('fill', 'grey');
 
 		svg.append('text')
 			.text('KD Ratio')
 			.attr('text-anchor', 'center')
-			.attr("transform", "translate("+ (-margin.left/2) + "," + (height/2) + ")" + ' rotate(-90)')
+			.attr("transform", "translate("+ (-margin.left/2-10) + "," + (height/2) + ")" + ' rotate(-90)')
 			.style('font-family', 'Font Awesome 5 Free')
 			.style('fill', 'grey');
 
@@ -204,17 +204,25 @@ var question2=function(filePath){
 			.range([padding, svgwidth-padding])
 
 		var yScale = d3.scaleLinear()
-			.domain([d3.min(final, function(d){return d.rating;}),
-				d3.max(data, function(d){return d.rating;})
+			.domain([1,
+				d3.max(data, function(d){return d.rating;})+0.02
 			])
-			.range([padding, svgheight-padding]);
+			.range([svgheight-padding, padding]);
 
 		svg.append("g")
-			.attr("transform", "translate(0," + (svgheight-padding) + ")")
+			.attr("transform", "translate(-3," + (svgheight-padding) + ")")
 			.call(d3.axisBottom(xScale))
 			.selectAll('text')
 				.attr('text-anchor', 'end')
 				.attr('transform', 'translate(0,10) rotate(-45)')
+				.style('font-family', 'Font Awesome 5 Free')
+				.style('color', 'grey');
+
+		svg.append("g")
+			.attr("transform", "translate("+(padding-3)+",0)")
+			.call(d3.axisLeft(yScale))
+			.selectAll('text')
+				.attr('text-anchor', 'end')
 				.style('font-family', 'Font Awesome 5 Free')
 				.style('color', 'grey');
 
@@ -238,6 +246,21 @@ var question2=function(filePath){
 			.style("color", "white")
 			.style("border-radius", "5px")
 			.style("padding", "10px")
+
+		// Axes titles
+		svg.append('text')
+			.text('Top 50 rated players')
+			.attr('text-anchor', 'center')
+			.attr("transform", "translate("+ ((svgwidth)/2-padding/2-10) + "," + (svgheight- padding/2+10) + ")")
+			.style('font-family', 'Font Awesome 5 Free')
+			.style('fill', 'grey');
+
+		svg.append('text')
+			.text('Rating')
+			.attr('text-anchor', 'center')
+			.attr("transform", "translate("+ (padding/2+20) + "," + (svgheight/2+ padding/2-20) + ")" + ' rotate(-90)')
+			.style('font-family', 'Font Awesome 5 Free')
+			.style('fill', 'grey');
 			
 
 		// Setting up movetootip function	
@@ -285,13 +308,13 @@ var question2=function(filePath){
 					return xScale(d.nick);
 				})
 				.attr("y", function(d){
-					return svgheight-padding-yScale(d.rating);
+					return yScale(d.rating);
 				})
 				.attr("width", function(d){
 					return xScale.bandwidth()-3;
 				})
 				.attr("height", function(d){
-					return yScale(d.rating);
+					return svgheight-padding-yScale(d.rating);
 				})
 
 		// Flag for ascending/decending
@@ -314,10 +337,10 @@ var question2=function(filePath){
 				.transition('sorting')
 				.duration(1000)
 				.attr('height', function(d,i){
-					return yScale(d.rating)
+					return svgheight-padding-yScale(d.rating)
 				})
 				.attr("y", function(d, i){
-					return svgheight-padding-yScale(d.rating);
+					return yScale(d.rating);
 				})
 				.attr("x", function(d, i){
 					return xScale(d.nick);
@@ -483,6 +506,21 @@ var question3=function(filePath){
 			.style('fill', 'grey')
 			.style('font-family', 'Font Awesome 5 Free')
 			.style('font-size', 20);
+
+		// Axes titles
+		svg.append('text')
+			.text('Top 50 rated players')
+			.attr('text-anchor', 'center')
+			.attr("transform", "translate("+ ((width)/2-padding/2-70) + "," + (height- padding/2+30) + ")")
+			.style('font-family', 'Font Awesome 5 Free')
+			.style('fill', 'grey');
+
+		svg.append('text')
+			.text('Kills/Assists Per Round')
+			.attr('text-anchor', 'center')
+			.attr("transform", "translate("+ (padding/2+10) + "," + (height/2+ padding/2) + ")" + ' rotate(-90)')
+			.style('font-family', 'Font Awesome 5 Free')
+			.style('fill', 'grey');
 	});
 }
 
