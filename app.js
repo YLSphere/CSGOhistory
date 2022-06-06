@@ -619,6 +619,8 @@ var question4=function(filePath){
 }
 
 var question5=function(filePath){
+	d3.select('#current')
+		.style("overflow-y", "hidden")
 
 
 	d3.csv(filePath, rowConverter).then(function(data){
@@ -828,7 +830,7 @@ var introduction=function(){
 	d3.select('#current')
 		.append('h3')
 		.attr('class', 'pallete')
-		.html('Color Pallete')
+		.html('Color Palette')
 
 	d3.select('#current')
 		.append("img")
@@ -943,7 +945,7 @@ var introduction=function(){
 		.append('p')
 		.attr('class', 'explaination')
 		.html("This visualization involves the use of 4 colors which all fit into the five color scheme shown above. Because of the increased number of colors seen, compensating " + 
-		"for all types of color blindnes is a bit more difficult. However, I made sure to refer back to my color pallete and pick colors that would not overlap in terms of both hue and " +
+		"for all types of color blindnes is a bit more difficult. However, I made sure to refer back to my color palette and pick colors that would not overlap in terms of both hue and " +
 		"shade. In addition, I made sure that the hover color of both assists and kills were different to make it easier for users to denote between the highlighting of each category. "+ 
 		"Finally, when deciding on the default color encoding of my stacked bar chart, I chose to go with both grey and red, as they are both easily distinguishable to any user regardless of color blindness.")
 	d3.select('#current')
