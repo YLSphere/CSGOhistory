@@ -198,20 +198,25 @@ i {
 .introTitle{
 	transform: translate(25%, 20px);
 	color: #5161ce;
+	font-weight: bold;
+	font-style: italic;
 }
 
 .vizTitle{
 	transform: translate(5%, 20px);
 	color: rgb(61, 61, 61);
+	font-style: italic;
+	
 }
 
 .subTitle{
-	transform: translate(7.5%, 10px);
+	transform: translate(7.5%, 15px);
 	color: rgb(78, 78, 78);
+	font-weight: bold;
 }
 
 .explaination{
-	transform: translate(10%, 10px);
+	transform: translate(10%, 15px);
 	color: gray;
 	width: 85%;
 	word-wrap: break-word;

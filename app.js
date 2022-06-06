@@ -99,7 +99,7 @@ var question1=function(filePath){
 
 		// Add X axis
 		var x = d3.scaleLinear()
-			.domain([d3.min(data, function(d){return d.maps_played}), d3.max(data, function(d){return d.maps_played})])
+			.domain([d3.min(data, function(d){return d.maps_played})-100, d3.max(data, function(d){return d.maps_played})+100])
 			.range([ 0, width ]);
 		svg.append("g")
 			.attr("transform", "translate(0," + height + ")")
@@ -108,7 +108,7 @@ var question1=function(filePath){
 
 		// Add Y axis
 		var y = d3.scaleLinear()
-			.domain([d3.min(data, function(d) { return d.kd_ratio; }), d3.max(data, function(d) { return d.kd_ratio; })])
+			.domain([d3.min(data, function(d) { return d.kd_ratio; })-0.05, d3.max(data, function(d) { return d.kd_ratio; })+0.05])
 			.range([ height, 0]);
 		svg.append("g")
 			.call(d3.axisLeft(y))
@@ -819,8 +819,6 @@ var question5=function(filePath){
 
 var introduction=function(){
 	
-
-
 	d3.select('#current')
 		.style("overflow-y", "scroll")
 		.append('h1')
@@ -879,7 +877,7 @@ var introduction=function(){
 	d3.select('#current')
 		.append('p')
 		.attr('class', 'explaination')
-		.html("__TO BE FILLED__")
+		.html("Marks: Points <br> Channels: Vertical and Horizontal	positions")
 
 
 
@@ -917,7 +915,7 @@ var introduction=function(){
 	d3.select('#current')
 		.append('p')
 		.attr('class', 'explaination')
-		.html("__TO BE FILLED__")
+		.html("Marks: Area <br> Channels: Area")
 
 
 
@@ -955,7 +953,7 @@ var introduction=function(){
 	d3.select('#current')
 		.append('p')
 		.attr('class', 'explaination')
-		.html("__TO BE FILLED__")
+		.html("Marks: Area <br> Channels: Area, Color Hue")
 
 
 
@@ -991,7 +989,7 @@ var introduction=function(){
 	d3.select('#current')
 		.append('p')
 		.attr('class', 'explaination')
-		.html("__TO BE FILLED__")
+		.html("Marks: Points, Containments <br> Channels: Area, Spacial Region")
 
 
 
@@ -1031,11 +1029,11 @@ var introduction=function(){
 		.append('p')
 		
 		.attr('class', 'explaination')
-		.html("__TO BE FILLED__")
+		.html("Marks: Points, Connections <br> Channels: Color Hue, Spacial Region")
 	
 	d3.select('#current')
 		.append('p')
-		.html('<br><br><br><br><br>')
+		.html('<br><br><br>')
 
 
 
